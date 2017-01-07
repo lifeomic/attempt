@@ -1,5 +1,5 @@
-tri
-===========
+# tri
+
 Try to execute a JavaScript function
 
 ## Installation
