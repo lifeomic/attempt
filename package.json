@@ -1,0 +1,35 @@
+{
+  "name": "tri",
+  "version": "0.2.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/austinkelleher/tri.git"
+  },
+  "keywords": [
+    "attempt",
+    "try"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/austinkelleher/tri/issues"
+  },
+  "dependencies": {
+    "conflogger": "^1.0.3"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "eslint": "^3.12.2",
+    "eslint-config-semistandard": "^7.0.0",
+    "eslint-config-standard": "^6.2.1",
+    "eslint-plugin-promise": "^3.4.0",
+    "eslint-plugin-standard": "^2.0.1",
+    "mocha": "^3.2.0"
+  },
+  "homepage": "https://github.com/austinkelleher/tri#readme"
+}
