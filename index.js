@@ -55,29 +55,27 @@ function tri (tryFunc, options, operationName) {
       options = DEFAULT_OPTIONS;
     }
 
-    let {
-      // Initial delay
-      initialDelay,
-      // An optional function that we will call when
-      // error happens to see if we should try again.
-      shouldRetry,
-      handleAttemptError,
-      // The max number of attempts.
-      maxAttempts,
-      maxRetries,
-      // The max delay which is only relevant if 'factor' is provided.
-      maxDelay,
-      // The exponential growth factory.
-      // For example, a value of 2 will cause delay to grow by
-      // a power of 2 (unless jitter is introduced).
-      factor,
-      // Jitter is applied after a delay is calculated according
-      // to other options. If 'jitter' is true then random value
-      // between 0 and calculated delay will be used as the
-      // actual delay.
-      jitter,
-      attemptTimeout
-    } = options;
+    // Initial delay
+    let initialDelay = options.initialDelay;
+    // An optional function that we will call when
+    // error happens to see if we should try again.
+    let shouldRetry = options.shouldRetry;
+    let handleAttemptError = options.handleAttemptError;
+    // The max number of attempts.
+    let maxAttempts = options.maxAttempts;
+    let maxRetries = options.maxRetries;
+    // The max delay which is only relevant if 'factor' is provided.
+    let maxDelay = options.maxDelay;
+    // The exponential growth factory.
+    // For example, a value of 2 will cause delay to grow by
+    // a power of 2 (unless jitter is introduced).
+    let factor = options.factor;
+    // Jitter is applied after a delay is calculated according
+    // to other options. If 'jitter' is true then random value
+    // between 0 and calculated delay will be used as the
+    // actual delay.
+    let jitter = options.jitter;
+    let attemptTimeout = options.attemptTimeout;
 
     const logger = conflogger.configure(options.logger);
     const logDebugEnabled = logger && logger.isDebugEnabled();

@@ -1,5 +1,8 @@
 # tri
 
+[![Build Status](https://travis-ci.org/austinkelleher/tri.svg)](https://travis-ci.org/austinkelleher/tri)
+![NPM version](https://badge.fury.io/js/tri.svg)
+
 Try to execute a JavaScript function
 
 ## Installation
