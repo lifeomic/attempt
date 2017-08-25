@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "nyc ava --timeout 10000"
+    "test": "nyc ava --timeout 10000 && npm run lint",
+    "lint": "eslint ./*.js test/*.js"
   },
   "repository": {
     "type": "git",
@@ -26,7 +27,6 @@
     "almost-equal": "^1.1.0",
     "ava": "^0.22.0",
     "eslint": "^3.12.2",
-    "eslint-config-semistandard": "^7.0.0",
     "eslint-config-standard": "^6.2.1",
     "eslint-plugin-promise": "^3.4.0",
     "eslint-plugin-standard": "^2.0.1",
