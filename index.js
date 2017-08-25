@@ -1,6 +1,6 @@
-'use strict';
+'use strict'
 
-const conflogger = require('conflogger');
+const conflogger = require('conflogger')
 
 const DEFAULT_OPTIONS = {
   // Base amount of time in between attempts.
@@ -34,153 +34,153 @@ const DEFAULT_OPTIONS = {
   // before forcefully rejecting it.
   // A value of 0 means that there is no timeout.
   attemptTimeout: 0
-};
+}
 
-let DEFAULT_KEYS = Object.keys(DEFAULT_OPTIONS);
+let DEFAULT_KEYS = Object.keys(DEFAULT_OPTIONS)
 
 function _applyDefaultsForMissing (options) {
   DEFAULT_KEYS.forEach((key) => {
-    const value = options[key];
+    const value = options[key]
     if (value == null) {
-      options[key] = DEFAULT_OPTIONS[key];
+      options[key] = DEFAULT_OPTIONS[key]
     }
-  });
+  })
 }
 
 function tri (tryFunc, options, operationName) {
   return new Promise((resolve, reject) => {
     if (options) {
-      _applyDefaultsForMissing(options);
+      _applyDefaultsForMissing(options)
     } else {
-      options = DEFAULT_OPTIONS;
+      options = DEFAULT_OPTIONS
     }
 
     // Initial delay
-    let initialDelay = options.initialDelay;
+    let initialDelay = options.initialDelay
     // An optional function that we will call when
     // error happens to see if we should try again.
-    let shouldRetry = options.shouldRetry;
-    let handleAttemptError = options.handleAttemptError;
+    let shouldRetry = options.shouldRetry
+    let handleAttemptError = options.handleAttemptError
     // The max number of attempts.
-    let maxAttempts = options.maxAttempts;
-    let maxRetries = options.maxRetries;
+    let maxAttempts = options.maxAttempts
+    let maxRetries = options.maxRetries
     // The max delay which is only relevant if 'factor' is provided.
-    let maxDelay = options.maxDelay;
+    let maxDelay = options.maxDelay
     // The exponential growth factory.
     // For example, a value of 2 will cause delay to grow by
     // a power of 2 (unless jitter is introduced).
-    let factor = options.factor;
+    let factor = options.factor
     // Jitter is applied after a delay is calculated according
     // to other options. If 'jitter' is true then random value
     // between 0 and calculated delay will be used as the
     // actual delay.
-    let jitter = options.jitter;
-    let attemptTimeout = options.attemptTimeout;
+    let jitter = options.jitter
+    let attemptTimeout = options.attemptTimeout
 
-    const logger = conflogger.configure(options.logger);
-    const logDebugEnabled = logger && logger.isDebugEnabled();
+    const logger = conflogger.configure(options.logger)
+    const logDebugEnabled = logger && logger.isDebugEnabled()
 
     // TODO: We can remove the check for `maxRetries` after code
     // stops using it in favor of `maxAttempts`.
     if (maxRetries) {
-      maxAttempts = maxRetries + 1;
+      maxAttempts = maxRetries + 1
     }
 
-    const operationNamePrefix = (operationName) ? `Operation [${operationName}]:` : 'Operation:';
-    let handleError;
+    const operationNamePrefix = (operationName) ? `Operation [${operationName}]:` : 'Operation:'
+    let handleError
 
-    let attemptNum = 0;
+    let attemptNum = 0
 
     const makeAttempt = () => {
-      attemptNum++;
+      attemptNum++
 
       if (logDebugEnabled) {
-        logger.debug(`${operationNamePrefix} Trying attempt ${attemptNum} (maxAttempts=${maxAttempts})...`);
+        logger.debug(`${operationNamePrefix} Trying attempt ${attemptNum} (maxAttempts=${maxAttempts})...`)
       }
 
-      let onSuccess;
-      let onError;
+      let onSuccess
+      let onError
 
       if (attemptTimeout) {
-        let timedOut = false;
+        let timedOut = false
         let timer = setTimeout(() => {
-          timer = null;
-          timedOut = true;
-          let err = new Error(`${operationNamePrefix} Attempt timeout after ${attemptTimeout} milliseconds`);
-          err.code = 'ATTEMPT_TIMEOUT';
-          handleError(err);
-        }, attemptTimeout);
+          timer = null
+          timedOut = true
+          let err = new Error(`${operationNamePrefix} Attempt timeout after ${attemptTimeout} milliseconds`)
+          err.code = 'ATTEMPT_TIMEOUT'
+          handleError(err)
+        }, attemptTimeout)
 
         onSuccess = (result) => {
           if (timer) {
-            clearTimeout(timer);
-            timer = null;
+            clearTimeout(timer)
+            timer = null
           }
 
           if (timedOut) {
-            logger.warn(`${operationNamePrefix} Attempt ucceeded after timeout of ${attemptTimeout} milliseconds`);
+            logger.warn(`${operationNamePrefix} Attempt ucceeded after timeout of ${attemptTimeout} milliseconds`)
           } else {
-            resolve(result);
+            resolve(result)
           }
-        };
+        }
 
         onError = (err) => {
           if (timer) {
-            clearTimeout(timer);
-            timer = null;
+            clearTimeout(timer)
+            timer = null
           }
 
           if (!timedOut) {
-            handleError(err);
+            handleError(err)
           }
-        };
+        }
       } else {
-        onSuccess = resolve;
-        onError = handleError;
+        onSuccess = resolve
+        onError = handleError
       }
 
-      let promise;
+      let promise
       try {
-        promise = tryFunc();
+        promise = tryFunc()
       } catch (err) {
-        onError(err);
-        return;
+        onError(err)
+        return
       }
 
-      promise.then(onSuccess).catch(onError);
-    };
+      promise.then(onSuccess).catch(onError)
+    }
 
     handleError = (err) => {
-      logger.error(`${operationNamePrefix} Attempt ${(attemptNum)} failed (maxAttempts=${maxAttempts})`, err);
+      logger.error(`${operationNamePrefix} Attempt ${(attemptNum)} failed (maxAttempts=${maxAttempts})`, err)
 
       if (handleAttemptError) {
-        handleAttemptError(err);
+        handleAttemptError(err)
       }
 
       if (shouldRetry && !shouldRetry(err)) {
         // We should not retry
-        reject(err);
-        return null;
+        reject(err)
+        return null
       }
 
       if (maxAttempts && attemptNum >= maxAttempts) {
         // max number of attempts reached
-        logger.error(`${operationNamePrefix} Gave up after ${(maxAttempts)} attempts`);
-        reject(err);
-        return null;
+        logger.error(`${operationNamePrefix} Gave up after ${(maxAttempts)} attempts`)
+        reject(err)
+        return null
       }
 
       // Timeout calculation starts with the initial delay
-      let delay = options.delay;
+      let delay = options.delay
 
       if (delay) {
         if (factor) {
-          delay *= Math.pow(factor, attemptNum - 1);
+          delay *= Math.pow(factor, attemptNum - 1)
         }
 
         if (maxDelay && (delay > maxDelay)) {
           // Cap the delay
-          delay = maxDelay;
+          delay = maxDelay
         }
 
         if (jitter) {
@@ -188,29 +188,29 @@ function tri (tryFunc, options, operationName) {
           // being used.
           // See https://www.awsarchitectureblog.com/2015/03/backoff.html
           // We're using the "full jitter" strategy.
-          delay = Math.random() * delay;
+          delay = Math.random() * delay
         }
 
-        delay = Math.round(delay);
+        delay = Math.round(delay)
       }
 
       if (logDebugEnabled) {
-        logger.debug(`${operationNamePrefix} Waiting ${delay} milliseconds before trying attempt ${attemptNum + 1}`);
+        logger.debug(`${operationNamePrefix} Waiting ${delay} milliseconds before trying attempt ${attemptNum + 1}`)
       }
 
-      setTimeout(makeAttempt, delay);
+      setTimeout(makeAttempt, delay)
 
-      return null;
-    };
+      return null
+    }
 
     if (initialDelay) {
       // Initial delay before first attempt
-      setTimeout(makeAttempt, initialDelay);
+      setTimeout(makeAttempt, initialDelay)
     } else {
       // Try first attempt right away
-      makeAttempt();
+      makeAttempt()
     }
-  });
+  })
 }
 
-module.exports = tri;
+module.exports = tri
