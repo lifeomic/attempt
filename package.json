@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "nyc ava --timeout 10000"
   },
   "repository": {
     "type": "git",
@@ -23,13 +23,14 @@
     "conflogger": "^1.0.3"
   },
   "devDependencies": {
-    "chai": "^3.5.0",
+    "almost-equal": "^1.1.0",
+    "ava": "^0.22.0",
     "eslint": "^3.12.2",
     "eslint-config-semistandard": "^7.0.0",
     "eslint-config-standard": "^6.2.1",
     "eslint-plugin-promise": "^3.4.0",
     "eslint-plugin-standard": "^2.0.1",
-    "mocha": "^3.2.0"
+    "nyc": "^11.1.0"
   },
   "homepage": "https://github.com/austinkelleher/tri#readme"
 }
