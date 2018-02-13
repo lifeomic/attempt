@@ -1,11 +1,64 @@
 import test from 'ava';
-import { retry, sleep } from '../src';
+import {
+  retry, sleep, defaultCalculateDelay,
+  PartialAttemptOptions, AttemptOptions, AttemptContext } from '../src';
 
 function almostEqual (a: number, b: number, tolerance: number) {
   return Math.abs(a - b) <= tolerance;
 }
 
 const DELAY_TOLERANCE = parseInt(process.env.DELAY_TOLERANCE || '', 10) || 50;
+
+test('should be able to calculate delays', (t) => {
+  const options = {
+    delay: 0,
+    initialDelay: 0,
+    minDelay: 0,
+    maxDelay: 0,
+    factor: 0,
+    maxAttempts: 0,
+    timeout: 0,
+    jitter: false,
+    handleError: null,
+    handleTimeout: null,
+    beforeAttempt: null,
+    calculateDelay: null
+  };
+
+  const context: AttemptContext = {
+    attemptNum: 0,
+    attemptsRemaining: 0,
+    aborted: false,
+    abort () {
+      // do nothing
+    }
+  };
+
+  for (const attempt of [
+    { num: 1, delay: 200, factor: 2, expected: 200 },
+    { num: 2, delay: 200, factor: 2, expected: 400 },
+    { num: 3, delay: 200, factor: 2, expected: 800 },
+    //
+    { num: 1, delay: 200, factor: 1.5, expected: 200 },
+    { num: 2, delay: 200, factor: 1.5, expected: 300 },
+    { num: 3, delay: 200, factor: 1.5, expected: 450 },
+    //
+    { num: 1, delay: 0, factor: 15 /* ignored because delay is 0 */, expected: 0 },
+    { num: 2, delay: 0, factor: 15 /* ignored because delay is 0 */, expected: 0 },
+    { num: 3, delay: 0, factor: 15 /* ignored because delay is 0 */, expected: 0 },
+    //
+    { num: 1, delay: 200, maxDelay: 300, factor: 2, expected: 200 },
+    { num: 2, delay: 200, maxDelay: 300, factor: 2, expected: 300 },
+    { num: 3, delay: 200, maxDelay: 300, factor: 2, expected: 300 }
+  ]) {
+    context.attemptNum = attempt.num;
+    options.delay = attempt.delay;
+    options.factor = attempt.factor;
+    options.maxDelay = attempt.maxDelay || 0;
+    const delay = defaultCalculateDelay(context, options as AttemptOptions);
+    t.is(delay, attempt.expected, JSON.stringify(attempt));
+  }
+});
 
 test('should default to 3 attempts with 200 delay', async (t) => {
   let expectedDelays = [
@@ -331,7 +384,6 @@ test('should detect invalid integer option', async (t) => {
     'initialDelay',
     'minDelay',
     'maxDelay',
-    'factor',
     'maxAttempts',
     'timeout'
   ]) {
@@ -354,6 +406,30 @@ test('should detect invalid integer option', async (t) => {
     } catch (err) {
       t.is(err.message, `Value for ${prop} must be an integer greater than or equal to 0`);
     }
+  }
+});
+
+test('should detect invalid factor option', async (t) => {
+  try {
+    await retry(async (context) => {
+      throw new Error('should not get here');
+    }, {
+      factor: -1
+    });
+  } catch (err) {
+    t.is(err.message, `Value for factor must be a number greater than or equal to 0`);
+  }
+
+  try {
+    const options = {};
+
+    (options as any).factor = 'abc';
+
+    await retry(async (context) => {
+      throw new Error('should not get here');
+    }, options);
+  } catch (err) {
+    t.is(err.message, `Value for factor must be a number greater than or equal to 0`);
   }
 });
 

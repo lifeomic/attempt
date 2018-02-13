@@ -97,7 +97,6 @@ export async function retry (
     'initialDelay',
     'minDelay',
     'maxDelay',
-    'factor',
     'maxAttempts',
     'timeout'
   ]) {
@@ -106,6 +105,10 @@ export async function retry (
     if (!Number.isInteger(value) || (value < 0)) {
       throw new Error(`Value for ${prop} must be an integer greater than or equal to 0`);
     }
+  }
+
+  if ((typeof options.factor !== 'number') || (options.factor < 0)) {
+    throw new Error(`Value for factor must be a number greater than or equal to 0`);
   }
 
   if (options.delay < options.minDelay) {
