@@ -1,36 +1,73 @@
 {
-  "name": "tri",
-  "version": "1.0.2",
-  "description": "",
-  "main": "index.js",
+  "name": "@lifeomic/attempt",
+  "version": "2.0.0",
+  "description": "Library that can be used to retry functions that return promise",
+  "main": "./work/dist/src/",
+  "module": "./work/dist/es6/src/",
+  "jsnext:main": "./work/dist/esnext/src/",
+  "types": "./work/dist/src/index.d.ts",
   "scripts": {
-    "test": "nyc ava --timeout 10000 && npm run lint",
-    "lint": "eslint ./*.js test/*.js"
+    "compile-src-cjs": "tsc --declaration --declarationDir ./work/dist -p tsconfig-src-cjs.json",
+    "compile-src-es6": "tsc -p tsconfig-src-es6.json",
+    "compile-src-esnext": "tsc -p tsconfig-src-esnext.json",
+    "precompile-src": "rm -rf ./work/dist",
+    "compile-src": "yarn compile-src-cjs && yarn compile-src-es6 && yarn compile-src-esnext",
+    "transpile-test-js": "BABEL_ENV=test babel work/dist-test --out-dir work/dist-test --source-maps",
+    "precompile-test": "rm -rf ./work/dist-test",
+    "compile-test": "tsc -p tsconfig-test.json && yarn transpile-test-js",
+    "lint": "tslint --format codeFrame --project tsconfig.json 'src/**/*.js' 'test/**/*.js'",
+    "pretest": "yarn lint && yarn compile-test",
+    "test": "BABEL_ENV=test nyc ava 'work/dist-test/test/**/*.test.js'",
+    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "prebuild": "yarn test",
+    "build": "yarn compile-src && ./tools/bin/postbuild",
+    "publish-patch": "yarn build && ./tools/bin/publish patch",
+    "publish-minor": "yarn build && ./tools/bin/publish minor",
+    "publish-major": "yarn build && ./tools/bin/publish major"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/austinkelleher/tri.git"
+    "url": "https://github.com/lifeomic/attempt.git"
   },
   "keywords": [
     "attempt",
-    "try"
+    "try",
+    "retry",
+    "backoff",
+    "delay",
+    "jitter",
+    "promise",
+    "async",
+    "await",
+    "typescript"
   ],
   "author": "",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/austinkelleher/tri/issues"
   },
-  "dependencies": {
-    "conflogger": "^1.0.3"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "almost-equal": "^1.1.0",
-    "ava": "^0.22.0",
-    "eslint": "^3.12.2",
-    "eslint-config-standard": "^6.2.1",
-    "eslint-plugin-promise": "^3.4.0",
-    "eslint-plugin-standard": "^2.0.1",
-    "nyc": "^11.1.0"
+    "@types/node": "^4.0.36",
+    "ava": "^0.25.0",
+    "babel-cli": "^6.26.0",
+    "babel-plugin-istanbul": "^4.1.5",
+    "chalk": "^2.3.0",
+    "coveralls": "^3.0.0",
+    "nyc": "^11.4.1",
+    "source-map-support": "^0.5.3",
+    "tslint": "^5.9.1",
+    "tslint-config-semistandard": "^7.0.0",
+    "typescript": "^2.6.2"
   },
-  "homepage": "https://github.com/austinkelleher/tri#readme"
+  "homepage": "https://github.com/austinkelleher/tri#readme",
+  "ava": {
+    "require": [
+      "source-map-support/register"
+    ]
+  },
+  "nyc": {
+    "sourceMap": false,
+    "instrument": false
+  }
 }
