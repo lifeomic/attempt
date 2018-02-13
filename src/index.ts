@@ -5,6 +5,7 @@ export interface AttemptContext {
   abort: () => void;
 }
 
+export type AttemptFunction = (context: AttemptContext, options: AttemptOptions) => Promise<any>;
 export type BeforeAttempt = (context: AttemptContext, options: AttemptOptions) => void;
 export type CalculateDelay = (context: AttemptContext, options: AttemptOptions) => number;
 export type HandleError = (err: any, context: AttemptContext, options: AttemptOptions) => void;
@@ -86,7 +87,7 @@ export function defaultCalculateDelay (context: AttemptContext, options: Attempt
 }
 
 export async function retry (
-  attemptFunc: (context: AttemptContext, options: AttemptOptions) => Promise<any>,
+  attemptFunc: AttemptFunction,
   attemptOptions?: PartialAttemptOptions) {
 
   const options = applyDefaults(attemptOptions);
