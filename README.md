@@ -228,7 +228,7 @@ const result = await retry(async function() {
 });
 ```
 
-### Keep retrying but abort if an error indicates that we should not retry
+### Stop retrying if an error indicates that we should not retry
 
 ```js
 // Try the given operation update to 4 times. The initial delay will be 0
@@ -241,7 +241,7 @@ const result = await retry(async function() {
   maxAttempts: 4,
   handleError (err, context) {
     if (err.retryable === false) {
-      // We should abort error indicates that request is not retryable
+      // We should abort because error indicates that request is not retryable
       context.abort();
     }
   }
