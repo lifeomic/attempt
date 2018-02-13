@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/lifeomic/attempt.svg?branch=master)](https://travis-ci.org/lifeomic/attempt)
 
+[![Coverage Status](https://coveralls.io/repos/github/lifeomic/attempt/badge.svg?branch=master)](https://coveralls.io/github/lifeomic/attempt?branch=master)
+
 This library exports a `retry(...)` function that can be used to invoke
 a function that returns a `Promise` multiple times until returned
 `Promise` is resolved or the max number of attempts is reached.
