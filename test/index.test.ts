@@ -39,7 +39,7 @@ test('should default to 3 attempts with 200 delay', async (t) => {
     let diff = newTime - lastTime;
     lastTime = newTime;
 
-    t.true(diff <= (expectedDelays[context.attemptNum] + DELAY_TOLERANCE));
+    t.true(almostEqual(diff, expectedDelays[context.attemptNum], DELAY_TOLERANCE));
 
     throw new Error(`attempt ${context.attemptNum}`);
   }));
@@ -65,7 +65,7 @@ test('should support initialDelay', async (t) => {
     let diff = newTime - lastTime;
     lastTime = newTime;
 
-    t.true(diff <= (expectedDelays[context.attemptNum] + DELAY_TOLERANCE));
+    t.true(almostEqual(diff, expectedDelays[context.attemptNum], DELAY_TOLERANCE));
 
     throw new Error(`attempt ${context.attemptNum}`);
   }, {
