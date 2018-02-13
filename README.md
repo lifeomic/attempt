@@ -1,8 +1,8 @@
 # Attempt
 
 This library exports a `retry(...)` function that can be used to invoke
-a function that returns a `Promise` multiple times until it is resolved or
-the max number of attempts is reached.
+a function that returns a `Promise` multiple times until returned
+`Promise` is resolved or the max number of attempts is reached.
 
 The delay between each attempt is configurable and allows multiple
 retry strategies.
@@ -43,13 +43,40 @@ import { retry } from '@lifeomic/attempt';
 ```
 
 ```js
-retry(async (context) => {
-  // some code that returns a promise or resolved value
-}, options);
+try {
+  const result = await retry(async (context) => {
+    // some code that returns a promise or resolved value
+  }, options);
+} catch (err) {
+  // If the max number of attempts was exceeded then `err`
+  // will be the last error that was thrown.
+  //
+  // If error is due to timeout then `err.code` will be a string
+  // with value of `ATTEMPT_TIMEOUT`.
+}
 ```
 
 The `options` argument is optional, and when absent the default values
 are assigned. All times/durations are in milliseconds.
+
+The following object shows the default options:
+
+```js
+{
+  delay: 200,
+  maxAttempts: 3,
+  initialDelay: 0,
+  minDelay: 0,
+  maxDelay: 0,
+  factor: 0,
+  timeout: 0,
+  jitter: false,
+  handleError: null,
+  handleTimeout: null,
+  beforeAttempt: null,
+  calculateDelay: null
+}
+```
 
 **NOTE:**
 
@@ -174,7 +201,7 @@ to your target environment.
 - **`attemptsRemaining`**: `Number`
 
   The number of attempts remaining. The initial value is `maxAttempts`
-  or `-` if `maxAttempts` is `0` (unbounded).
+  or `-1` if `maxAttempts` is `0` (unbounded).
 
 - **`abort`**: `() => void`
 
@@ -246,15 +273,15 @@ const result = await retry(async function() {
 });
 ```
 
-### Retry with exponential backoff, jitter, and max delay
+### Retry with exponential backoff, jitter, min delay, and max delay
 
 ```js
 // Try the given operation 3 times. The initial delay will be 0
 // and subsequent delays will be in the following range:
 // - 100 to 200
 // - 100 to 400
-// - 100 to 500
-// - 100 to 500
+// - 100 to 500 (capped at `maxDelay`)
+// - 100 to 500 (capped at `maxDelay`)
 const result = await retry(async function() {
   // do something that returns a promise
 }, {
