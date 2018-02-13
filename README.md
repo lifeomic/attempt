@@ -134,7 +134,7 @@ to your target environment.
   The maximum number of attempts or `0` if there
   is no limit on number of attempts.
 
-  (default: `0`)
+  (default: `3`)
 
 - **`timeout`**: `Number`
 
