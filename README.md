@@ -51,8 +51,8 @@ try {
   // If the max number of attempts was exceeded then `err`
   // will be the last error that was thrown.
   //
-  // If error is due to timeout then `err.code` will be a string
-  // with value of `ATTEMPT_TIMEOUT`.
+  // If error is due to timeout then `err.code` will be the
+  // string `ATTEMPT_TIMEOUT`.
 }
 ```
 
@@ -228,7 +228,7 @@ const result = await retry(async function() {
 });
 ```
 
-### Keep trying but abort if the error should not be retried
+### Keep retrying but abort if an error indicates that we should not retry
 
 ```js
 // Try the given operation update to 4 times. The initial delay will be 0
@@ -241,6 +241,7 @@ const result = await retry(async function() {
   maxAttempts: 4,
   handleError (err, context) {
     if (err.retryable === false) {
+      // We should abort error indicates that request is not retryable
       context.abort();
     }
   }
@@ -251,7 +252,8 @@ const result = await retry(async function() {
 
 ```js
 // Try the given operation update to 4 times. The initial delay will be 0
-// and subsequent delays will be 200, 400, 800
+// and subsequent delays will be 200, 400, 800 (delay doubles each time due
+// to factor of `2`)
 const result = await retry(async function() {
   // do something that returns a promise
 }, {
@@ -265,7 +267,7 @@ const result = await retry(async function() {
 
 ```js
 // Try the given operation up to 5 times. The initial delay will be 0
-// and subsequent delays will be 200, 400, 500, 500
+// and subsequent delays will be 200, 400, 500, 500 (capped at `maxDelay`)
 const result = await retry(async function() {
   // do something that returns a promise
 }, {
