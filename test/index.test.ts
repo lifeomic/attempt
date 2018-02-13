@@ -35,6 +35,10 @@ test('should be able to calculate delays', (t) => {
   };
 
   for (const attempt of [
+    { num: 1, delay: 200, factor: 0, expected: 200 },
+    { num: 2, delay: 200, factor: 0, expected: 200 },
+    { num: 3, delay: 200, factor: 0, expected: 200 },
+    //
     { num: 1, delay: 200, factor: 2, expected: 200 },
     { num: 2, delay: 200, factor: 2, expected: 400 },
     { num: 3, delay: 200, factor: 2, expected: 800 },
@@ -71,6 +75,10 @@ test('should default to 3 attempts with 200 delay', async (t) => {
   let attemptCount = 0;
 
   const err = await t.throws(retry(async (context, options) => {
+    let newTime = Date.now();
+    let diff = newTime - lastTime;
+    lastTime = newTime;
+
     t.deepEqual(options, {
       delay: 200,
       initialDelay: 0,
@@ -87,10 +95,6 @@ test('should default to 3 attempts with 200 delay', async (t) => {
     });
 
     attemptCount++;
-
-    let newTime = Date.now();
-    let diff = newTime - lastTime;
-    lastTime = newTime;
 
     t.true(almostEqual(diff, expectedDelays[context.attemptNum], DELAY_TOLERANCE));
 
