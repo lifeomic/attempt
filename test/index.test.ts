@@ -5,7 +5,7 @@ function almostEqual (a: number, b: number, tolerance: number) {
   return Math.abs(a - b) <= tolerance;
 }
 
-const DELAY_TOLERANCE = 50;
+const DELAY_TOLERANCE = parseInt(process.env.DELAY_TOLERANCE, 10) || 50;
 
 test('should default to 3 attempts with 200 delay', async (t) => {
   let expectedDelays = [

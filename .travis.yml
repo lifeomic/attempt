@@ -1,10 +1,13 @@
 language: node_js
 node_js:
-- "7.6"
-- "8"
-- "9"
+  - "7.6"
+  - "8"
+  - "9"
 script:
-- yarn build
+  - yarn build
+
+env:
+  - DELAY_TOLERANCE=100
 
 after_success: yarn coverage
 
