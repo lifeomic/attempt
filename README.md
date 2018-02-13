@@ -206,12 +206,15 @@ to your target environment.
 - **`abort`**: `() => void`
 
   The `abort` function can be called when handling
-  an error via `handleTimeout` function. The abort function should be
-  used to prevent any further attempts in cases where the error indicates
-  that the error should not be retried. For example, an HTTP error
-  code of `400` (Bad Request) should not be retried while a `504`
-  (Gateway Timeout) should not be aborted because it might be
-  a temporary problem.
+  an error via `handleError` or when `beforeAttempt` function is invoked.
+  The abort function should be used to prevent any further attempts in cases
+  when an error indicates that we should not retry.
+
+  For example, an HTTP request that returns an HTTP
+  error code of `400` (Bad Request) should not be retried because there is
+  a problem with the input (and retrying will not fix this).
+  However, a request that returns `504` (Gateway Timeout) should be
+  retried because it might be a temporary problem.
 
 ## Recipes
 
