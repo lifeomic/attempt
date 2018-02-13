@@ -1,5 +1,7 @@
 # Attempt
 
+[![Build Status](https://travis-ci.org/lifeomic/attempt.svg?branch=master)](https://travis-ci.org/lifeomic/attempt)
+
 This library exports a `retry(...)` function that can be used to invoke
 a function that returns a `Promise` multiple times until returned
 `Promise` is resolved or the max number of attempts is reached.
