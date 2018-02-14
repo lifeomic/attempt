@@ -44,7 +44,7 @@
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/austinkelleher/tri/issues"
+    "url": "https://github.com/lifeomic/attempt/issues"
   },
   "dependencies": {},
   "devDependencies": {
@@ -60,7 +60,7 @@
     "tslint-config-semistandard": "^7.0.0",
     "typescript": "^2.6.2"
   },
-  "homepage": "https://github.com/austinkelleher/tri#readme",
+  "homepage": "https://github.com/lifeomic/attempt#readme",
   "ava": {
     "require": [
       "source-map-support/register"
