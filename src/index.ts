@@ -5,13 +5,13 @@ export interface AttemptContext {
   abort: () => void;
 }
 
-export type AttemptFunction = (context: AttemptContext, options: AttemptOptions) => Promise<any>;
-export type BeforeAttempt = (context: AttemptContext, options: AttemptOptions) => void;
-export type CalculateDelay = (context: AttemptContext, options: AttemptOptions) => number;
-export type HandleError = (err: any, context: AttemptContext, options: AttemptOptions) => void;
-export type HandleTimeout = (context: AttemptContext, options: AttemptOptions) => Promise<any> | void;
+export type AttemptFunction<T> = (context: AttemptContext, options: AttemptOptions<T>) => Promise<T>;
+export type BeforeAttempt<T> = (context: AttemptContext, options: AttemptOptions<T>) => void;
+export type CalculateDelay<T> = (context: AttemptContext, options: AttemptOptions<T>) => number;
+export type HandleError<T> = (err: any, context: AttemptContext, options: AttemptOptions<T>) => void;
+export type HandleTimeout<T> = (context: AttemptContext, options: AttemptOptions<T>) => Promise<T>;
 
-export interface AttemptOptions {
+export interface AttemptOptions<T> {
   readonly delay: number;
   readonly initialDelay: number;
   readonly minDelay: number;
@@ -20,17 +20,17 @@ export interface AttemptOptions {
   readonly maxAttempts: number;
   readonly timeout: number;
   readonly jitter: boolean;
-  readonly handleError: HandleError | null;
-  readonly handleTimeout: HandleTimeout | null;
-  readonly beforeAttempt: BeforeAttempt | null;
-  readonly calculateDelay: CalculateDelay | null;
+  readonly handleError: HandleError<T> | null;
+  readonly handleTimeout: HandleTimeout<T> | null;
+  readonly beforeAttempt: BeforeAttempt<T> | null;
+  readonly calculateDelay: CalculateDelay<T> | null;
 }
 
-export type PartialAttemptOptions = {
-  readonly [P in keyof AttemptOptions]?: AttemptOptions[P];
+export type PartialAttemptOptions<T> = {
+  readonly [P in keyof AttemptOptions<T>]?: AttemptOptions<T>[P];
 };
 
-function applyDefaults (options?: PartialAttemptOptions): AttemptOptions {
+function applyDefaults<T>(options?: PartialAttemptOptions<T>): AttemptOptions<T> {
   if (!options) {
     options = {};
   }
@@ -57,7 +57,7 @@ export async function sleep (delay: number) {
   });
 }
 
-export function defaultCalculateDelay (context: AttemptContext, options: AttemptOptions): number {
+export function defaultCalculateDelay<T>(context: AttemptContext, options: AttemptOptions<T>): number {
   let delay = options.delay;
 
   if (delay === 0) {
@@ -86,9 +86,9 @@ export function defaultCalculateDelay (context: AttemptContext, options: Attempt
   return Math.round(delay);
 }
 
-export async function retry (
-  attemptFunc: AttemptFunction,
-  attemptOptions?: PartialAttemptOptions) {
+export async function retry <T>(
+  attemptFunc: AttemptFunction<T>,
+  attemptOptions?: PartialAttemptOptions<T>): Promise<T> {
 
   const options = applyDefaults(attemptOptions);
 
@@ -165,7 +165,7 @@ export async function retry (
       return new Promise((resolve, reject) => {
         const timer = setTimeout(() => {
           if (options.handleTimeout) {
-            resolve(options.handleTimeout(context, options) as any);
+            resolve(options.handleTimeout(context, options));
           } else {
             const err: any = new Error(`Retry timeout (attemptNum: ${context.attemptNum}, timeout: ${options.timeout})`);
             err.code = 'ATTEMPT_TIMEOUT';
@@ -173,7 +173,7 @@ export async function retry (
           }
         }, options.timeout);
 
-        attemptFunc(context, options).then((result: any) => {
+        attemptFunc(context, options).then((result: T) => {
           clearTimeout(timer);
           resolve(result);
         }).catch((err: any) => {

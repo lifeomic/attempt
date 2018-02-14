@@ -59,7 +59,7 @@ test('should be able to calculate delays', (t) => {
     options.delay = attempt.delay;
     options.factor = attempt.factor;
     options.maxDelay = attempt.maxDelay || 0;
-    const delay = defaultCalculateDelay(context, options as AttemptOptions);
+    const delay = defaultCalculateDelay(context, options as AttemptOptions<any>);
     t.is(delay, attempt.expected, JSON.stringify(attempt));
   }
 });
@@ -170,8 +170,9 @@ test('should support timeout and handleTimeout', async (t) => {
     return 'used fallback';
   }
 
-  const result = await retry(async () => {
+  const result = await retry<string>(async () => {
     await sleep(500);
+    return 'did not use fallback';
   }, {
     delay: 0,
     timeout: 50,
@@ -523,4 +524,30 @@ test('should allow caller to provide calculateDelay function', async (t) => {
       return context.attemptNum * 100 + 50;
     }
   });
+});
+
+test('should allow for return type to be specified', async (t) => {
+  interface TestResult {
+    str: string;
+    num: number;
+  }
+
+  const attemptFunc = () => ({ str: 'string', num: 25 });
+
+  const result = await retry<TestResult>(async (context) => {
+    // typescript will check to make sure
+    // that the return value of attemptFunc
+    // matches the TestResult interface
+    return attemptFunc();
+  });
+
+  // since the TestResult type was given as the type argument,
+  // typescript will automatically infer the type of 'result'.
+  // accessing something like result.fieldThatDoesNotExist
+  // will cause typescript to complain
+  //
+  // You can uncomment the line below to test that
+  // t.is(result.fieldThatDoesNotExist, undefined);
+  t.is(result.str, 'string');
+  t.is(result.num, 25);
 });
