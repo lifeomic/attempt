@@ -1,7 +1,8 @@
 import test from 'ava';
 import {
   retry, sleep, defaultCalculateDelay,
-  PartialAttemptOptions, AttemptOptions, AttemptContext } from '../src';
+  AttemptOptions, AttemptContext
+} from '../src';
 
 function almostEqual (a: number, b: number, tolerance: number) {
   return Math.abs(a - b) <= tolerance;
@@ -76,7 +77,7 @@ test('should default to 3 attempts with 200 delay', async (t) => {
 
   const err = await t.throws(retry(async (context, options) => {
     let newTime = Date.now();
-    let diff = newTime - lastTime;
+    let actualDelay = newTime - lastTime;
     lastTime = newTime;
 
     t.deepEqual(options, {
@@ -96,7 +97,7 @@ test('should default to 3 attempts with 200 delay', async (t) => {
 
     attemptCount++;
 
-    t.true(almostEqual(diff, expectedDelays[context.attemptNum], DELAY_TOLERANCE));
+    t.true(almostEqual(actualDelay, expectedDelays[context.attemptNum], DELAY_TOLERANCE));
 
     throw new Error(`attempt ${context.attemptNum}`);
   }));
@@ -119,10 +120,10 @@ test('should support initialDelay', async (t) => {
     attemptCount++;
 
     let newTime = Date.now();
-    let diff = newTime - lastTime;
+    let actualDelay = newTime - lastTime;
     lastTime = newTime;
 
-    t.true(almostEqual(diff, expectedDelays[context.attemptNum], DELAY_TOLERANCE));
+    t.true(almostEqual(actualDelay, expectedDelays[context.attemptNum], DELAY_TOLERANCE));
 
     throw new Error(`attempt ${context.attemptNum}`);
   }, {
@@ -260,10 +261,10 @@ test('should support factor property', async (t) => {
 
   return retry(async (context) => {
     let newTime = Date.now();
-    let diff = newTime - lastTime;
+    let actualDelay = newTime - lastTime;
     lastTime = newTime;
 
-    t.true(almostEqual(diff, expectedDelays[context.attemptNum], DELAY_TOLERANCE));
+    t.true(almostEqual(actualDelay, expectedDelays[context.attemptNum], DELAY_TOLERANCE));
 
     if (context.attemptsRemaining > 0) {
       throw new Error('FAILED');
@@ -288,10 +289,10 @@ test('should support maximum delay', async (t) => {
 
   return retry(async (context) => {
     let newTime = Date.now();
-    let diff = newTime - lastTime;
+    let actualDelay = newTime - lastTime;
     lastTime = newTime;
 
-    t.true(almostEqual(diff, Math.min(expectedDelays[context.attemptNum], 200), DELAY_TOLERANCE));
+    t.true(almostEqual(actualDelay, Math.min(expectedDelays[context.attemptNum], 200), DELAY_TOLERANCE));
 
     if (context.attemptNum !== 4) {
       throw new Error('FAILED');
@@ -317,10 +318,10 @@ test('should support jitter', async (t) => {
 
   return retry(async (context) => {
     let newTime = Date.now();
-    let diff = newTime - lastTime;
+    let actualDelay = newTime - lastTime;
     lastTime = newTime;
 
-    t.true(diff <= (expectedDelays[context.attemptNum] + DELAY_TOLERANCE));
+    t.true(actualDelay <= (expectedDelays[context.attemptNum] + DELAY_TOLERANCE));
 
     if (context.attemptsRemaining === 0) {
       return 'success';
@@ -349,14 +350,14 @@ test('should support jitter with minDelay', async (t) => {
 
   return retry(async (context) => {
     let newTime = Date.now();
-    let diff = newTime - lastTime;
+    let actualDelay = newTime - lastTime;
     lastTime = newTime;
 
     if (context.attemptNum > 0) {
-      t.true(diff >= minDelay);
+      t.true(actualDelay >= minDelay);
     }
 
-    t.true(diff <= (expectedDelays[context.attemptNum] + DELAY_TOLERANCE));
+    t.true(actualDelay <= (expectedDelays[context.attemptNum] + DELAY_TOLERANCE));
 
     if (context.attemptsRemaining === 0) {
       return 'success';
@@ -508,10 +509,10 @@ test('should allow caller to provide calculateDelay function', async (t) => {
 
   return retry(async (context) => {
     let newTime = Date.now();
-    let diff = newTime - lastTime;
+    let actualDelay = newTime - lastTime;
     lastTime = newTime;
 
-    t.true(diff <= (expectedDelays[context.attemptNum] + DELAY_TOLERANCE));
+    t.true(actualDelay <= (expectedDelays[context.attemptNum] + DELAY_TOLERANCE));
 
     if (context.attemptsRemaining === 0) {
       return 'success';

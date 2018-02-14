@@ -30,7 +30,7 @@ export type PartialAttemptOptions<T> = {
   readonly [P in keyof AttemptOptions<T>]?: AttemptOptions<T>[P];
 };
 
-function applyDefaults<T>(options?: PartialAttemptOptions<T>): AttemptOptions<T> {
+function applyDefaults<T> (options?: PartialAttemptOptions<T>): AttemptOptions<T> {
   if (!options) {
     options = {};
   }
@@ -57,7 +57,7 @@ export async function sleep (delay: number) {
   });
 }
 
-export function defaultCalculateDelay<T>(context: AttemptContext, options: AttemptOptions<T>): number {
+export function defaultCalculateDelay<T> (context: AttemptContext, options: AttemptOptions<T>): number {
   let delay = options.delay;
 
   if (delay === 0) {
@@ -86,7 +86,7 @@ export function defaultCalculateDelay<T>(context: AttemptContext, options: Attem
   return Math.round(delay);
 }
 
-export async function retry <T>(
+export async function retry<T> (
   attemptFunc: AttemptFunction<T>,
   attemptOptions?: PartialAttemptOptions<T>): Promise<T> {
 
@@ -107,7 +107,7 @@ export async function retry <T>(
     }
   }
 
-  if ((typeof options.factor !== 'number') || (options.factor < 0)) {
+  if ((options.factor.constructor !== Number) || (options.factor < 0)) {
     throw new Error(`Value for factor must be a number greater than or equal to 0`);
   }
 

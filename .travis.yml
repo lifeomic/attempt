@@ -6,7 +6,7 @@ script:
   - yarn build
 
 env:
-  - DELAY_TOLERANCE=100
+  - DELAY_TOLERANCE=250
 
 after_success: yarn coverage
 

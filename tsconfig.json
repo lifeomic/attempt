@@ -3,6 +3,7 @@
     "rootDir": ".",
     "baseUrl": ".",
     "outDir": "./work/dist",
+    "noUnusedLocals": true,
     "allowSyntheticDefaultImports": false,
     "noImplicitAny": true,
     "noImplicitThis": true,

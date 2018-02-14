@@ -15,7 +15,7 @@
     "transpile-test-js": "BABEL_ENV=test babel work/dist-test --out-dir work/dist-test --source-maps",
     "precompile-test": "rm -rf ./work/dist-test",
     "compile-test": "tsc -p tsconfig-test.json && yarn transpile-test-js",
-    "lint": "tslint --format codeFrame --project tsconfig.json 'src/**/*.js' 'test/**/*.js'",
+    "lint": "tslint --format codeFrame --project tsconfig.json 'src/**/*.ts' 'test/**/*.ts'",
     "pretest": "yarn lint && yarn compile-test",
     "test": "BABEL_ENV=test nyc ava 'work/dist-test/test/**/*.test.js'",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
