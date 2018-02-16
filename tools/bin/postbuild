@@ -31,7 +31,7 @@ function rewritePackageJsonPaths (obj, keys) {
 }
 
 async function run () {
-  await spawn('cp', ['-r', 'LICENSE', 'src', `${DIST_DIR}/`], { cwd: ROOT_DIR });
+  await spawn('cp', ['-r', 'LICENSE', 'README.md', 'src', `${DIST_DIR}/`], { cwd: ROOT_DIR });
 
   const packageObj = await readJsonFile(ROOT_PACKAGE_JSON_FILE);
 

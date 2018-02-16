@@ -8,7 +8,7 @@ function almostEqual (a: number, b: number, tolerance: number) {
   return Math.abs(a - b) <= tolerance;
 }
 
-const DELAY_TOLERANCE = parseInt(process.env.DELAY_TOLERANCE || '', 10) || 50;
+const DELAY_TOLERANCE = parseInt(process.env.DELAY_TOLERANCE || '', 10) || 100;
 
 test('should be able to calculate delays', (t) => {
   const options = {
