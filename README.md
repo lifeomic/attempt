@@ -1,10 +1,6 @@
 # Attempt
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/lifeomic/attempt.svg)](https://greenkeeper.io/)
-
-[![Build Status](https://travis-ci.org/lifeomic/attempt.svg?branch=master)](https://travis-ci.org/lifeomic/attempt)
-
-[![Coverage Status](https://coveralls.io/repos/github/lifeomic/attempt/badge.svg?branch=master)](https://coveralls.io/github/lifeomic/attempt?branch=master)
+[![Greenkeeper badge](https://badges.greenkeeper.io/lifeomic/attempt.svg)](https://greenkeeper.io/) [![Build Status](https://travis-ci.org/lifeomic/attempt.svg?branch=master)](https://travis-ci.org/lifeomic/attempt) [![Coverage Status](https://coveralls.io/repos/github/lifeomic/attempt/badge.svg?branch=master)](https://coveralls.io/github/lifeomic/attempt?branch=master) [![npm version](https://badge.fury.io/js/%40lifeomic%2Fattempt.svg)](https://badge.fury.io/js/%40lifeomic%2Fattempt)
 
 This library exports a `retry(...)` function that can be used to invoke
 a function that returns a `Promise` multiple times until returned
