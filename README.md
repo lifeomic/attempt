@@ -91,7 +91,7 @@ to your target environment.
 
 - **`delay`**: `Number`
 
-  The delay between each attempt in milliseocnds.
+  The delay between each attempt in milliseconds.
   You can provide a `factor` to have the `delay` grow exponentially.
 
   (default: `200`)
