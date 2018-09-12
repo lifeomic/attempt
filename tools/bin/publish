@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+const inquirer = require('inquirer');
 const VERSION_TYPE = process.argv[2] || 'patch';
 
 const {
@@ -14,8 +15,16 @@ const {
 } = require('../build-util');
 
 async function run () {
+  const otpResult = await inquirer.prompt([
+    {
+      type: 'input',
+      name: 'otp',
+      message: 'NPM One-time Password:'
+    }
+  ]);
+
   await exec(`npm version ${VERSION_TYPE} --no-git-tag-version`, { cwd: DIST_DIR });
-  await exec('npm publish --access public', { cwd: DIST_DIR });
+  await exec(`npm publish --access public --otp=${otpResult.otp}`, { cwd: DIST_DIR });
 
   const rootPackageObj = await readJsonFile(ROOT_PACKAGE_JSON_FILE);
   const distPackageObj = await readJsonFile(DIST_PACKAGE_JSON_FILE);
