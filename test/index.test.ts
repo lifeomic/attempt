@@ -19,9 +19,11 @@ test('should be able to calculate delays', (t) => {
     factor: 0,
     maxAttempts: 0,
     timeout: 0,
+    totalTimeout: 0,
     jitter: false,
     handleError: null,
     handleTimeout: null,
+    handleTotalTimeout: null,
     beforeAttempt: null,
     calculateDelay: null
   };
@@ -88,9 +90,11 @@ test('should default to 3 attempts with 200 delay', async (t) => {
       factor: 0,
       maxAttempts: 3,
       timeout: 0,
+      totalTimeout: 0,
       jitter: false,
       handleError: null,
       handleTimeout: null,
+      handleTotalTimeout: null,
       beforeAttempt: null,
       calculateDelay: null
     });
@@ -218,6 +222,74 @@ test('should support timeout for multiple attempts', async (t) => {
   // third attempt should timeout
   t.is(attemptCount, 3);
   t.is(err.code, 'ATTEMPT_TIMEOUT');
+});
+
+test('should support totalTimeout on first attempt', async (t) => {
+  const err = await t.throws(retry(async () => {
+    await sleep(500);
+  }, {
+    delay: 0,
+    totalTimeout: 50,
+    maxAttempts: 3
+  }));
+
+  t.is(err.code, 'TOTAL_TIMEOUT');
+});
+
+test('should support totalTimeout and handleTotalTimeout', async (t) => {
+  async function fallback () {
+    await sleep(100);
+    return 'used fallback';
+  }
+
+  const result = await retry<string>(async () => {
+    await sleep(500);
+    return 'did not use fallback';
+  }, {
+    delay: 0,
+    totalTimeout: 50,
+    maxAttempts: 2,
+    handleTotalTimeout: fallback
+  });
+
+  t.is(result, 'used fallback');
+});
+
+test('should allow handleTotalTimeout to throw an error', async (t) => {
+  const err = await t.throws(retry(async () => {
+    await sleep(500);
+  }, {
+    delay: 0,
+    totalTimeout: 50,
+    maxAttempts: 2,
+    handleTotalTimeout: async (context) => {
+      throw new Error('timeout occurred');
+    }
+  }));
+
+  t.is(err.message, 'timeout occurred');
+});
+
+test('should support totalTimeout that happens between attempts', async (t) => {
+  let attemptCount = 0;
+  const err = await t.throws(retry(async (context) => {
+    attemptCount++;
+
+    if (context.attemptNum > 2) {
+      return 'did not timeout';
+    } else {
+      await sleep(20);
+      throw new Error('fake error');
+    }
+  }, {
+    delay: 0,
+    totalTimeout: 50,
+    maxAttempts: 5
+  }));
+
+  // third attempt should timeout
+  t.is(attemptCount, 3);
+  t.is(err.code, 'TOTAL_TIMEOUT');
 });
 
 test('should support retries', async (t) => {
