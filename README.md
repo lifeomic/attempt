@@ -22,7 +22,7 @@ The following features are supported:
 
 **Using NPM:**
 ```bash
-npm install @lifeomic/attempt --save
+npm i @lifeomic/attempt
 ```
 
 **Using Yarn:**
