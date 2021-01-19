@@ -165,7 +165,13 @@ export async function retry<T> (
       return new Promise((resolve, reject) => {
         const timer = setTimeout(() => {
           if (options.handleTimeout) {
-            resolve(options.handleTimeout(context, options));
+            // If calling handleTimeout throws an error that is not wrapped in a promise
+            // we want to catch the error and reject.
+            try {
+              resolve(options.handleTimeout(context, options));
+            } catch (e) {
+              reject(e);
+            }
           } else {
             const err: any = new Error(`Retry timeout (attemptNum: ${context.attemptNum}, timeout: ${options.timeout})`);
             err.code = 'ATTEMPT_TIMEOUT';
