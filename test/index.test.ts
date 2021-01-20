@@ -552,3 +552,16 @@ test('should allow for return type to be specified', async (t) => {
   t.is(result.str, 'string');
   t.is(result.num, 25);
 });
+
+test('should allow handleTimeout to throw an error that can be caught', async (t) => {
+  const expectedError = new Error();
+
+  const actualError = await t.throws(retry(async () => {
+    await sleep(20);
+  }, {
+    handleTimeout: () => { throw expectedError; },
+    timeout: 10
+  }));
+
+  t.is(expectedError, actualError);
+});
