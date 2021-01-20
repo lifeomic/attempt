@@ -1,6 +1,6 @@
 {
   "name": "@lifeomic/attempt",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Library that can be used to retry functions that return promise",
   "main": "./work/dist/src/",
   "module": "./work/dist/es6/src/",
