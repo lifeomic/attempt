@@ -8,7 +8,7 @@ export interface AttemptContext {
 export type AttemptFunction<T> = (context: AttemptContext, options: AttemptOptions<T>) => Promise<T>;
 export type BeforeAttempt<T> = (context: AttemptContext, options: AttemptOptions<T>) => void;
 export type CalculateDelay<T> = (context: AttemptContext, options: AttemptOptions<T>) => number;
-export type HandleError<T> = (err: any, context: AttemptContext, options: AttemptOptions<T>) => void;
+export type HandleError<T> = (err: any, context: AttemptContext, options: AttemptOptions<T>) => Promise<void>;
 export type HandleTimeout<T> = (context: AttemptContext, options: AttemptOptions<T>) => Promise<T>;
 
 export interface AttemptOptions<T> {
@@ -139,7 +139,7 @@ export async function retry<T> (
 
     const onError = async (err: any) => {
       if (options.handleError) {
-        options.handleError(err, context, options);
+        await options.handleError(err, context, options);
       }
 
       if (context.aborted || (context.attemptsRemaining === 0)) {
