@@ -460,6 +460,26 @@ test('should allow attempts to be aborted via handleError', async (t) => {
   t.is(err.retryable, false);
 });
 
+test('should wait for async handleError to resolve before retrying', async (t) => {
+  let promiseHasResolved = false;
+  await t.notThrows(retry(async ({ attemptNum }) => {
+    if (attemptNum === 0) {
+      throw new Error('Try again after handleError resolves.');
+    }
+    if (!promiseHasResolved) {
+      throw new Error('handleError has not yet resolved!');
+    }
+    return 'handleError has resolved';
+  }, {
+    delay: 0,
+    maxAttempts: 2,
+    handleError: async () => {
+      await sleep(1000);
+      promiseHasResolved = true;
+    }
+  }));
+});
+
 test('should allow handleError to return new error', async (t) => {
   const err = await t.throws(retry(async (context) => {
     if (context.attemptNum === 1) {

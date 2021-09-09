@@ -8,7 +8,7 @@ export interface AttemptContext {
 export type AttemptFunction<T> = (context: AttemptContext, options: AttemptOptions<T>) => Promise<T>;
 export type BeforeAttempt<T> = (context: AttemptContext, options: AttemptOptions<T>) => void;
 export type CalculateDelay<T> = (context: AttemptContext, options: AttemptOptions<T>) => number;
-export type HandleError<T> = (err: any, context: AttemptContext, options: AttemptOptions<T>) => Promise<void>;
+export type HandleError<T> = (err: any, context: AttemptContext, options: AttemptOptions<T>) => Promise<void> | void;
 export type HandleTimeout<T> = (context: AttemptContext, options: AttemptOptions<T>) => Promise<T>;
 
 export interface AttemptOptions<T> {
