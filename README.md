@@ -163,7 +163,7 @@ to your target environment.
 
   (default: `0`)
 
-- **`handleError`**: `(err, context, options) => Proise<void> | void`
+- **`handleError`**: `(err, context, options) => Promise<void> | void`
 
   `handleError` is a function that will be invoked when an error occurs
   for an attempt. The first argument is the error and the second
