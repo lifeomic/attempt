@@ -18,7 +18,7 @@
     "lint": "tslint --format codeFrame --project tsconfig.json 'src/**/*.ts' 'test/**/*.ts'",
     "pretest": "yarn lint && yarn compile-test",
     "test": "BABEL_ENV=test nyc ava 'work/dist-test/test/**/*.test.js'",
-    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "coverage": "nyc report --reporter=text-lcov > ./.nyc_output/lcov.info",
     "prebuild": "yarn test",
     "build": "yarn compile-src && ./tools/bin/postbuild"
   },
