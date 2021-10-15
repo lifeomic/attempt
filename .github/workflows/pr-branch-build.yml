@@ -1,0 +1,59 @@
+name: PR Build and Test
+
+on:
+  pull_request
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Node.JS ${{ matrix.node-version }}
+    strategy:
+      matrix:
+        node-version: [10.x, 12.x, 14.x]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install
+        run: yarn install
+      - name: Test
+        run: yarn test
+      - name: Coverage
+        run: yarn coverage
+      - name: Coveralls
+        uses: coverallsapp/github-action@v1.1.2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: .nyc_output/lcov.info
+          flag-name: run-${{ matrix.node }}
+          parallel: true
+  preRelease:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+          registry-url: https://registry.npmjs.org
+      - name: Install
+        run: yarn install --frozen-lockfile
+      - name: Version
+        env:
+          PRE_ID: pr-${{ github.event.number }}-${{ github.run_id }}
+        run: npm version prepatch --git-tag-version=false --preid="${PRE_ID}-$(date '+%s')"
+      - name: PrePublish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.LIFEOMIC_NPM_TOKEN}}
+          PR_TAG: pr-${{ github.event.number }}
+        run: npm publish --tag "${PR_TAG}"
+  finish:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@v1.1.2
+        with:
+          github-token: ${{ secrets.github_token }}
+          parallel-finished: true

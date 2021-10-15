@@ -1,0 +1,52 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - 'master'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+          registry-url: https://registry.npmjs.org
+      - name: Install
+        run: yarn install --frozen-lockfile
+      - name: Test
+        env:
+          LAMBDA_REMOTE_DOCKER: true
+        run: yarn test
+      - id: tagExistsAndVersion
+        name: Check if tags exist in NPM and GIT
+        run: |
+          set +e
+          packageName="$(node -p "require('./package').name")"
+          packageVersion="$(node -p "require('./package').version")"
+          packageNameAndVersion="${packageName}@${packageVersion}"
+          npm view "${packageNameAndVersion}" dist.tarball | grep "${packageVersion}" > /dev/null
+          npmTagExists="$([ "$?" = "0" ] && BOOL="true" || BOOL="false"; echo $BOOL)"
+          set -e
+          echo "::set-output name=npmTagExists::${npmTagExists}"
+          echo "::set-output name=packageVersion::${packageVersion}"
+      - name: Publish
+        if: ${{ steps.tagExistsAndVersion.outputs.npmTagExists == 'false'}}
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.LIFEOMIC_NPM_TOKEN}}
+      - name: Create Release
+        if: ${{ steps.tagExistsAndVersion.outputs.npmTagExists == 'false'}}
+        id: create_release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.tagExistsAndVersion.outputs.packageVersion }}
+          release_name: v${{ steps.tagExistsAndVersion.outputs.packageVersion }}
+          draft: false
+          prerelease: false

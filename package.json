@@ -20,10 +20,7 @@
     "test": "BABEL_ENV=test nyc ava 'work/dist-test/test/**/*.test.js'",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "prebuild": "yarn test",
-    "build": "yarn compile-src && ./tools/bin/postbuild",
-    "publish-patch": "yarn build && ./tools/bin/publish patch",
-    "publish-minor": "yarn build && ./tools/bin/publish minor",
-    "publish-major": "yarn build && ./tools/bin/publish major"
+    "build": "yarn compile-src && ./tools/bin/postbuild"
   },
   "repository": {
     "type": "git",
