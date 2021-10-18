@@ -43,6 +43,9 @@ jobs:
         env:
           PRE_ID: pr-${{ github.event.number }}-${{ github.run_id }}
         run: npm version prepatch --git-tag-version=false --preid="${PRE_ID}-$(date '+%s')"
+      - name: HeadPackage
+        run: |
+          curl --silent --fail --request HEAD --output /dev/null --show-error --url https://registry.yarnpkg.com/@lifeomic/jupiter-dev-tools/-/jupiter-dev-tools-4.2.2.tgz --header "Authorization: Bearer ${{secrets.LIFEOMIC_NPM_TOKEN}}"
       - name: PrePublish
         env:
           NODE_AUTH_TOKEN: ${{secrets.LIFEOMIC_NPM_TOKEN}}
