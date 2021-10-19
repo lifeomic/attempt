@@ -4,9 +4,7 @@ import {
   AttemptOptions, AttemptContext
 } from '../src';
 
-function almostEqual (a: number, b: number, tolerance: number) {
-  return Math.abs(a - b) <= tolerance;
-}
+const almostEqual = (a: number, b: number, tolerance: number) => Math.abs(a - b) <= tolerance;
 
 const DELAY_TOLERANCE = parseInt(process.env.DELAY_TOLERANCE || '', 10) || 100;
 
