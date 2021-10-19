@@ -1,13 +1,14 @@
 {
   "name": "@lifeomic/attempt",
-  "version": "3.0.1",
+  "version": "0.0.0",
   "description": "Library that can be used to retry functions that return promise",
-  "main": "./work/dist/src/",
-  "module": "./work/dist/es6/src/",
-  "jsnext:main": "./work/dist/esnext/src/",
-  "types": "./work/dist/src/index.d.ts",
+  "main": "./dist/src/",
+  "module": "./dist/es6/src/",
+  "jsnext:main": "./dist/esnext/src/",
+  "types": "./dist/src/index.d.ts",
+  "files": ["dist/*"],
   "scripts": {
-    "compile-src-cjs": "tsc --declaration --declarationDir ./work/dist -p tsconfig-src-cjs.json",
+    "compile-src-cjs": "tsc --declaration --declarationDir ./dist -p tsconfig-src-cjs.json",
     "compile-src-es6": "tsc -p tsconfig-src-es6.json",
     "compile-src-esnext": "tsc -p tsconfig-src-esnext.json",
     "precompile-src": "rm -rf ./work/dist",
@@ -18,12 +19,12 @@
     "lint": "tslint --format codeFrame --project tsconfig.json 'src/**/*.ts' 'test/**/*.ts'",
     "pretest": "yarn lint && yarn compile-test",
     "test": "BABEL_ENV=test nyc ava 'work/dist-test/test/**/*.test.js'",
-    "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "prebuild": "yarn test",
-    "build": "yarn compile-src && ./tools/bin/postbuild",
-    "publish-patch": "yarn build && ./tools/bin/publish patch",
-    "publish-minor": "yarn build && ./tools/bin/publish minor",
-    "publish-major": "yarn build && ./tools/bin/publish major"
+    "coverage": "nyc report --reporter=text-lcov > ./.nyc_output/lcov.info",
+    "build": "yarn compile-src",
+    "prepare": "yarn build"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "repository": {
     "type": "git",
@@ -53,9 +54,11 @@
     "babel-cli": "^6.26.0",
     "babel-plugin-istanbul": "^4.1.5",
     "chalk": "^2.3.0",
+    "conventional-changelog-conventionalcommits": "^4.6.1",
     "coveralls": "^3.0.0",
     "inquirer": "^6.2.0",
     "nyc": "^12.0.1",
+    "semantic-release": "^18.0.0",
     "source-map-support": "^0.5.3",
     "tslint": "^5.9.1",
     "tslint-config-semistandard": "^7.0.0",
