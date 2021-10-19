@@ -6,6 +6,7 @@
   "module": "./dist/es6/src/",
   "jsnext:main": "./dist/esnext/src/",
   "types": "./dist/src/index.d.ts",
+  "files": ["dist/*"],
   "scripts": {
     "compile-src-cjs": "tsc --declaration --declarationDir ./dist -p tsconfig-src-cjs.json",
     "compile-src-es6": "tsc -p tsconfig-src-es6.json",
