@@ -2,7 +2,7 @@
   "compilerOptions": {
     "rootDir": ".",
     "baseUrl": ".",
-    "outDir": "./work/dist",
+    "outDir": "./dist",
     "noUnusedLocals": true,
     "allowSyntheticDefaultImports": false,
     "noImplicitAny": true,

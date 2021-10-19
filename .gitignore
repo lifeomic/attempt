@@ -31,3 +31,5 @@ build/Release
 node_modules/
 
 work/
+
+dist/
