@@ -583,3 +583,50 @@ test('should allow handleTimeout to throw an error that can be caught', async (t
 
   t.is(expectedError, actualError);
 });
+
+test('errors after the timeout, when using handleTimeout, should not result in unhandled rejections', async (t) => {
+  const expectedError = new Error('Operation timed out');
+
+  // Mock a slow to function that ends up failing
+  let resolve: (value: any) => void;
+  const fnPromise = new Promise((_resolve) => {
+    resolve = _resolve;
+  });
+
+  const fn = async () => {
+    await fnPromise;
+    throw new Error('This causes unhandled rejection');
+  };
+
+  const actualError = await t.throws(
+    retry(fn, {
+      // Add some configuration to makeit timeout fase
+      delay: 1,
+      maxAttempts: 1,
+      initialDelay: 0,
+      minDelay: 0,
+      maxDelay: 0,
+      factor: 0,
+      timeout: 10,
+      handleTimeout: async (context, options) => {
+        if (context.attemptsRemaining > 0) {
+          const res = await retry(
+            fn,
+            Object.assign({}, options, {
+              maxAttempts: context.attemptsRemaining
+            })
+          );
+          if (res) return res;
+        }
+        throw expectedError;
+      }
+    })
+  );
+
+  // Now that the retry failed due to timeout errors, finally allow
+  // the funciton to throw it's error.
+  // tslint:disable-next-line:no-unnecessary-type-assertion
+  resolve!(0);
+
+  t.is(actualError, expectedError);
+});

@@ -184,7 +184,10 @@ export async function retry<T> (
           resolve(result);
         }).catch((err: any) => {
           clearTimeout(timer);
-          resolve(onError(err));
+          // Calling resolve with a Promise that rejects here will result
+          // in an unhandled rejection. Calling `reject` with errors
+          // does not result in an unhandled rejection
+          onError(err).then(resolve).catch(reject);
         });
       });
     } else {
