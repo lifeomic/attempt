@@ -72,9 +72,11 @@ The following object shows the default options:
   maxDelay: 0,
   factor: 0,
   timeout: 0,
+  totalTimeout: 0,
   jitter: false,
   handleError: null,
   handleTimeout: null,
+  handleTotalTimeout: null,
   beforeAttempt: null,
   calculateDelay: null
 }
@@ -143,6 +145,17 @@ to your target environment.
 
   (default: `0`)
 
+- **`totalTimeout`**: `Number`
+
+  A total timeout for all attempts in milliseconds. If `totalTimeout` is
+  non-zero then a timer is set using `setTimeout`. If the timeout is
+  triggered then future attempts will be aborted.
+
+  The `handleTotalTimeout` function can be used to implement fallback
+  functionality.
+
+  (default: `0`)
+
 - **`jitter`**: `Boolean`
 
   If `jitter` is `true` then the calculated delay will
@@ -173,6 +186,12 @@ to your target environment.
 
   `handleTimeout` is invoked if a timeout occurs when using a non-zero
   `timeout`. The `handleTimeout` function should return a `Promise`
+  that will be the return value of the `retry()` function.
+
+- **`handleTotalTimeout`**: `(options) => Promise | void`
+
+  `handleTotalTimeout` is invoked if a timeout occurs when using a non-zero
+  `totalTimeout`. The `handleTotalTimeout` function should return a `Promise`
   that will be the return value of the `retry()` function.
 
 - **`beforeAttempt`**: `(context, options) => void`
@@ -335,6 +354,46 @@ const result = await retry(async function() {
   maxAttempts: 5,
   timeout: 1000,
   async handleTimeout (context) {
+    // do something that returns a promise or throw your own error
+  }
+});
+```
+
+### Stop retrying if there is a total timeout
+
+```js
+// Try the given operation up to 5 times. The initial delay will be 0
+// and subsequent delays will be 200, 400, 800, 1600.
+//
+// If the given async function fails to complete after 1 second then the
+// retries are aborted and error with `code` `TOTAL_TIMEOUT` is thrown.
+const result = await retry(async function() {
+  // do something that returns a promise
+}, {
+  delay: 200,
+  factor: 2,
+  maxAttempts: 5,
+  totalTimeout: 1000
+});
+```
+
+### Stop retrying if there is a total timeout but provide a fallback
+
+```js
+// Try the given operation up to 5 times. The initial delay will be 0
+// and subsequent delays will be 200, 400, 800, 1600.
+//
+// If the given async function fails to complete after 1 second then the
+// retries are aborted and the `handleTotalTimeout` implements some fallback
+// logic.
+const result = await retry(async function() {
+  // do something that returns a promise
+}, {
+  delay: 200,
+  factor: 2,
+  maxAttempts: 5,
+  totalTimeout: 1000,
+  async handleTotalTimeout (options) {
     // do something that returns a promise or throw your own error
   }
 });

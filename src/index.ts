@@ -10,6 +10,7 @@ export type BeforeAttempt<T> = (context: AttemptContext, options: AttemptOptions
 export type CalculateDelay<T> = (context: AttemptContext, options: AttemptOptions<T>) => number;
 export type HandleError<T> = (err: any, context: AttemptContext, options: AttemptOptions<T>) => Promise<void> | void;
 export type HandleTimeout<T> = (context: AttemptContext, options: AttemptOptions<T>) => Promise<T>;
+export type HandleTotalTimeout<T> = (options: AttemptOptions<T>) => Promise<T>;
 
 export interface AttemptOptions<T> {
   readonly delay: number;
@@ -19,9 +20,11 @@ export interface AttemptOptions<T> {
   readonly factor: number;
   readonly maxAttempts: number;
   readonly timeout: number;
+  readonly totalTimeout: number;
   readonly jitter: boolean;
   readonly handleError: HandleError<T> | null;
   readonly handleTimeout: HandleTimeout<T> | null;
+  readonly handleTotalTimeout: HandleTotalTimeout<T> | null;
   readonly beforeAttempt: BeforeAttempt<T> | null;
   readonly calculateDelay: CalculateDelay<T> | null;
 }
@@ -43,9 +46,11 @@ function applyDefaults<T> (options?: PartialAttemptOptions<T>): AttemptOptions<T
     factor: (options.factor === undefined) ? 0 : options.factor,
     maxAttempts: (options.maxAttempts === undefined) ? 3 : options.maxAttempts,
     timeout: (options.timeout === undefined) ? 0 : options.timeout,
+    totalTimeout: (options.totalTimeout === undefined) ? 0 : options.totalTimeout,
     jitter: (options.jitter === true),
     handleError: (options.handleError === undefined) ? null : options.handleError,
     handleTimeout: (options.handleTimeout === undefined) ? null : options.handleTimeout,
+    handleTotalTimeout: (options.handleTotalTimeout === undefined) ? null : options.handleTotalTimeout,
     beforeAttempt: (options.beforeAttempt === undefined) ? null : options.beforeAttempt,
     calculateDelay: (options.calculateDelay === undefined) ? null : options.calculateDelay
   };
@@ -88,7 +93,7 @@ export function defaultCalculateDelay<T> (context: AttemptContext, options: Atte
 
 export async function retry<T> (
   attemptFunc: AttemptFunction<T>,
-  attemptOptions?: PartialAttemptOptions<T>): Promise<T> {
+  attemptOptions?: PartialAttemptOptions<T>): Promise<any> {
 
   const options = applyDefaults(attemptOptions);
 
@@ -98,7 +103,8 @@ export async function retry<T> (
     'minDelay',
     'maxDelay',
     'maxAttempts',
-    'timeout'
+    'timeout',
+    'totalTimeout'
   ]) {
     const value: any = (options as any)[prop];
 
@@ -161,7 +167,7 @@ export async function retry<T> (
       context.attemptsRemaining--;
     }
 
-    if (options.timeout) {
+    if (options.timeout > 0) {
       return new Promise((resolve, reject) => {
         const timer = setTimeout(() => {
           if (options.handleTimeout) {
@@ -205,5 +211,30 @@ export async function retry<T> (
     await sleep(initialDelay);
   }
 
-  return makeAttempt();
+  if (options.totalTimeout > 0) {
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => {
+        context.abort();
+        if (options.handleTotalTimeout) {
+          resolve(options.handleTotalTimeout(options));
+        } else {
+          const err: any = new Error(`Total timeout (totalTimeout: ${options.totalTimeout})`);
+          err.code = 'TOTAL_TIMEOUT';
+          reject(err);
+        }
+      }, options.totalTimeout);
+
+      makeAttempt().then((result: T) => {
+        clearTimeout(timer);
+        resolve(result);
+      }).catch((err: any) => {
+        clearTimeout(timer);
+        reject(err);
+      });
+    });
+  } else {
+    // No totalTimeout provided so wait indefinitely for the returned promise
+    // to be resolved.
+    return makeAttempt();
+  }
 }
