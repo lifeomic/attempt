@@ -20,6 +20,7 @@ export interface AttemptOptions<T> {
   readonly maxAttempts: number;
   readonly timeout: number;
   readonly jitter: boolean;
+  readonly initialJitter: boolean;
   readonly handleError: HandleError<T> | null;
   readonly handleTimeout: HandleTimeout<T> | null;
   readonly beforeAttempt: BeforeAttempt<T> | null;
@@ -44,6 +45,7 @@ function applyDefaults<T> (options?: PartialAttemptOptions<T>): AttemptOptions<T
     maxAttempts: (options.maxAttempts === undefined) ? 3 : options.maxAttempts,
     timeout: (options.timeout === undefined) ? 0 : options.timeout,
     jitter: (options.jitter === true),
+    initialJitter: (options.initialJitter === true),
     handleError: (options.handleError === undefined) ? null : options.handleError,
     handleTimeout: (options.handleTimeout === undefined) ? null : options.handleTimeout,
     beforeAttempt: (options.beforeAttempt === undefined) ? null : options.beforeAttempt,
@@ -52,9 +54,7 @@ function applyDefaults<T> (options?: PartialAttemptOptions<T>): AttemptOptions<T
 }
 
 export async function sleep (delay: number) {
-  return new Promise((resolve, reject) => {
-    setTimeout(resolve, delay);
-  });
+  return new Promise((resolve) => setTimeout(resolve, delay));
 }
 
 export function defaultCalculateDelay<T> (context: AttemptContext, options: AttemptOptions<T>): number {
@@ -205,5 +205,11 @@ export async function retry<T> (
     await sleep(initialDelay);
   }
 
+  if (context.attemptNum < 1 && options.initialJitter) {
+    const delay = calculateDelay(context, options);
+    if (delay) {
+      await sleep(delay);
+    }
+  }
   return makeAttempt();
 }

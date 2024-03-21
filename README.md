@@ -73,6 +73,7 @@ The following object shows the default options:
   factor: 0,
   timeout: 0,
   jitter: false,
+  initialJitter: false,
   handleError: null,
   handleTimeout: null,
   beforeAttempt: null,
@@ -152,6 +153,13 @@ to your target environment.
    The following formula is used to calculate delay using `jitter`:
 
    `delay = Math.random() * (delay - minDelay) + minDelay`
+
+   (default: `false`)
+
+- **`initialJitter`**: `Boolean`
+
+  If `initialJitter` is `true` then a `jitter` will also be used in the
+  first call attempt.
 
    (default: `false`)
 
