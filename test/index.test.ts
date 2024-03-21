@@ -18,6 +18,7 @@ test('should be able to calculate delays', (t) => {
     maxAttempts: 0,
     timeout: 0,
     jitter: false,
+    initialJitter: false,
     handleError: null,
     handleTimeout: null,
     beforeAttempt: null,
@@ -87,6 +88,7 @@ test('should default to 3 attempts with 200 delay', async (t) => {
       maxAttempts: 3,
       timeout: 0,
       jitter: false,
+      initialJitter: false,
       handleError: null,
       handleTimeout: null,
       beforeAttempt: null,
@@ -334,6 +336,39 @@ test('should support jitter', async (t) => {
   });
 });
 
+test('should support jitter with initialJitter', async (t) => {
+  let expectedDelays = [
+    0,
+    100,
+    200,
+    400,
+    800
+  ];
+
+  let lastTime = Date.now();
+
+  return retry(async (context) => {
+    let newTime = Date.now();
+    let actualDelay = newTime - lastTime;
+    lastTime = newTime;
+
+    t.true(actualDelay <= (expectedDelays[context.attemptNum] + DELAY_TOLERANCE));
+    t.true(actualDelay > 0);
+
+    if (context.attemptsRemaining === 0) {
+      return 'success';
+    } else {
+      throw new Error('try again');
+    }
+  }, {
+    maxAttempts: expectedDelays.length,
+    delay: 100,
+    factor: 2,
+    jitter: true,
+    initialJitter: true
+  });
+});
+
 test('should support jitter with minDelay', async (t) => {
   let expectedDelays = [
     0,
@@ -368,6 +403,45 @@ test('should support jitter with minDelay', async (t) => {
     minDelay,
     factor: 2,
     jitter: true
+  });
+});
+
+test('should support jitter with minDelay and initialJitter', async (t) => {
+  let expectedDelays = [
+    0,
+    100,
+    200,
+    400,
+    800
+  ];
+
+  let lastTime = Date.now();
+  const minDelay = 100;
+
+  return retry(async (context) => {
+    let newTime = Date.now();
+    let actualDelay = newTime - lastTime;
+    lastTime = newTime;
+
+    if (context.attemptNum > 0) {
+      t.true(actualDelay >= minDelay);
+    }
+
+    t.true(actualDelay <= (expectedDelays[context.attemptNum] + DELAY_TOLERANCE));
+    t.true(actualDelay > 0);
+
+    if (context.attemptsRemaining === 0) {
+      return 'success';
+    } else {
+      throw new Error('try again');
+    }
+  }, {
+    maxAttempts: expectedDelays.length,
+    delay: 100,
+    minDelay,
+    factor: 2,
+    jitter: true,
+    initialJitter: true
   });
 });
 
