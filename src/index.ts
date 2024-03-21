@@ -54,9 +54,7 @@ function applyDefaults<T> (options?: PartialAttemptOptions<T>): AttemptOptions<T
 }
 
 export async function sleep (delay: number) {
-  return new Promise((resolve, reject) => {
-    setTimeout(resolve, delay);
-  });
+  return new Promise((resolve) => setTimeout(resolve, delay));
 }
 
 export function defaultCalculateDelay<T> (context: AttemptContext, options: AttemptOptions<T>): number {
