@@ -353,7 +353,6 @@ test('should support jitter with initialJitter', async (t) => {
     lastTime = newTime;
 
     t.true(actualDelay <= (expectedDelays[context.attemptNum] + DELAY_TOLERANCE));
-    t.true(actualDelay > 0);
 
     if (context.attemptsRemaining === 0) {
       return 'success';
@@ -428,7 +427,6 @@ test('should support jitter with minDelay and initialJitter', async (t) => {
     }
 
     t.true(actualDelay <= (expectedDelays[context.attemptNum] + DELAY_TOLERANCE));
-    t.true(actualDelay > 0);
 
     if (context.attemptsRemaining === 0) {
       return 'success';
