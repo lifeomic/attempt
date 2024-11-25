@@ -291,7 +291,7 @@ const result = await retry(async function() {
 ### Retry with exponential backoff, jitter, min delay, and max delay
 
 ```js
-// Try the given operation 3 times. The initial delay will be 0
+// Try the given operation up to 5 times. The initial delay will be 0
 // and subsequent delays will be in the following range:
 // - 100 to 200
 // - 100 to 400
