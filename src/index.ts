@@ -21,6 +21,7 @@ export interface AttemptOptions<T> {
   readonly timeout: number;
   readonly jitter: boolean;
   readonly initialJitter: boolean;
+  readonly signal: AbortSignal | null;
   readonly handleError: HandleError<T> | null;
   readonly handleTimeout: HandleTimeout<T> | null;
   readonly beforeAttempt: BeforeAttempt<T> | null;
@@ -46,6 +47,7 @@ function applyDefaults<T> (options?: PartialAttemptOptions<T>): AttemptOptions<T
     timeout: (options.timeout === undefined) ? 0 : options.timeout,
     jitter: (options.jitter === true),
     initialJitter: (options.initialJitter === true),
+    signal: (options.signal === undefined) ? null : options.signal,
     handleError: (options.handleError === undefined) ? null : options.handleError,
     handleTimeout: (options.handleTimeout === undefined) ? null : options.handleTimeout,
     beforeAttempt: (options.beforeAttempt === undefined) ? null : options.beforeAttempt,
@@ -131,7 +133,7 @@ export async function retry<T> (
       options.beforeAttempt(context, options);
     }
 
-    if (context.aborted) {
+    if (context.aborted || (options.signal && options.signal.aborted)) {
       const err: any = new Error(`Attempt aborted`);
       err.code = 'ATTEMPT_ABORTED';
       throw err;

@@ -171,6 +171,10 @@ to your target environment.
 
   (default: `0`)
 
+- **`signal`**: [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal)
+
+  When `signal` is `aborted` any further attempts are canceled. Similar to calling `context.abort()` manually.
+
 - **`handleError`**: `(err, context, options) => Promise<void> | void`
 
   `handleError` is a function that will be invoked when an error occurs
